@@ -1,0 +1,28 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "makemigrations for DocumentoVehiculo rename",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"manage.py",
+				"makemigrations",
+				"vehiculos"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "migrate after DocumentoVehiculo rename",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"manage.py",
+				"migrate"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

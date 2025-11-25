@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Estado de Tarea - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-arrow-repeat"></i> Editar Estado y Observaciones</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Información de la Tarea -->
+                    <div class="alert alert-info mb-4">
+                        <h6 class="mb-2"><strong>{{ tarea.titulo }}</strong></h6>
+                        <p class="small mb-1">
+                            <strong>Vehículo:</strong> 
+                            <a href="{% url 'ingreso_detail' ingreso.pk %}">{{ ingreso.vehiculo.patente }}</a>
+                        </p>
+                        <p class="small mb-0">
+                            <strong>Estado Actual:</strong>
+                            <span class="badge 
+                                {% if tarea.estado == 'PENDIENTE' %}bg-secondary
+                                {% elif tarea.estado == 'EN_PROCESO' %}bg-warning
+                                {% elif tarea.estado == 'PAUSADA' %}bg-warning
+                                {% elif tarea.estado == 'COMPLETADA' %}bg-success
+                                {% else %}bg-danger
+                                {% endif %}">
+                                {{ tarea.get_estado_display }}
+                            </span>
+                        </p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Selector de Estado -->
+                        <div class="mb-4">
+                            <label for="estado" class="form-label">
+                                <strong>Cambiar Estado</strong>
+                            </label>
+                            <select name="estado" id="estado" class="form-select form-select-lg" required>
+                                <option value="{{ tarea.estado }}" selected>
+                                    -- {{ tarea.get_estado_display }} (Actual) --
+                                </option>
+                                <optgroup label="Cambiar a:">
+                                    {% for valor, label in estados %}
+                                        {% if valor != tarea.estado %}
+                                        <option value="{{ valor }}">{{ label }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle"></i> 
+                                Selecciona el nuevo estado para esta tarea
+                            </small>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="mb-4">
+                            <label for="observaciones" class="form-label">
+                                <strong>Agregar Observación</strong>
+                            </label>
+                            <textarea 
+                                name="observaciones" 
+                                id="observaciones" 
+                                class="form-control" 
+                                rows="4" 
+                                placeholder="Escribe aquí cualquier observación sobre la tarea (opcional)...">
+                            </textarea>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle"></i> 
+                                Se agregará con la fecha y hora actual
+                            </small>
+                        </div>
+
+                        <!-- Repuestos Utilizados -->
+                        <div class="mb-4">
+                            <label for="repuestos_utilizados" class="form-label">
+                                <strong>Repuestos Utilizados</strong>
+                            </label>
+                            <textarea 
+                                name="repuestos_utilizados" 
+                                id="repuestos_utilizados" 
+                                class="form-control" 
+                                rows="3" 
+                                placeholder="Ej: Filtro de aceite, pastillas de freno, manguera de refrigerante...">{{ tarea.repuestos_utilizados }}</textarea>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle"></i> 
+                                Separa los repuestos con saltos de línea o comas
+                            </small>
+                        </div>
+
+                        <!-- Observaciones Anteriores (si existen) -->
+                        {% if tarea.observaciones %}
+                        <div class="mb-4">
+                            <div class="alert alert-light border">
+                                <strong class="d-block mb-2">Observaciones Previas:</strong>
+                                <p class="small mb-0" style="white-space: pre-wrap;">{{ tarea.observaciones }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Botones de Acción -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-lg"></i> Guardar Cambios
+                            </button>
+                            <a href="{% url 'tarea_detail' tarea.pk %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

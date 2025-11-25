@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Vehículos - PepsiCo Taller{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">
+                <i class="bi bi-truck text-primary"></i> Gestión de Vehículos
+            </h1>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user.rol == 'ADMIN' or user.rol == 'SUPERVISOR' %}
+            <a href="{% url 'vehiculo_create' %}" class="btn btn-pepsi-primary">
+                <i class="bi bi-plus-circle"></i> Agregar Vehículo
+            </a>
+            {% endif %}
+            <a href="{% url 'vehiculos_export_excel' %}" class="btn btn-outline-success ms-2">
+                <i class="bi bi-file-earmark-excel"></i> Descargar Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Resumen de vehículos -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Vehículos</h5>
+                    <p class="card-text display-6">{{ total_vehiculos }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Vehículos Activos</h5>
+                    <p class="card-text display-6 text-success">{{ total_activos }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Vehículos Inactivos</h5>
+                    <p class="card-text display-6 text-danger">{{ total_inactivos }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="card card-pepsi mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por patente, marca, modelo..." value="{{ query }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="tipo" class="form-select">
+                        <option value="">Todos los tipos</option>
+                        {% for value, label in tipos %}
+                        <option value="{{ value }}" {% if tipo_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="activo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="true" {% if activo_filter == 'true' %}selected{% endif %}>Activos</option>
+                        <option value="false" {% if activo_filter == 'false' %}selected{% endif %}>Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de vehículos -->
+    <div class="row">
+        {% for vehiculo in vehiculos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card card-pepsi h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-truck-front"></i> {{ vehiculo.patente }}
+                        </h5>
+                        {% if vehiculo.activo %}
+                        <span class="badge bg-success">Activo</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactivo</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="card-text">
+                        <strong>{{ vehiculo.marca }} {{ vehiculo.modelo }}</strong><br>
+                        <small class="text-muted">
+                            Año: {{ vehiculo.año }} | Tipo: {{ vehiculo.get_tipo_display }}<br>
+                            {% if vehiculo.flota %}Flota: {{ vehiculo.flota }}<br>{% endif %}
+                            Kilometraje: {{ vehiculo.kilometraje|floatformat:0 }} km
+                        </small>
+                    </p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'vehiculo_detail' vehiculo.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye"></i> Ver Detalle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No se encontraron vehículos.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

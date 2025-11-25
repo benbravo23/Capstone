@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Notificaciones - Retiro de Vehículos - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h3><i class="bi bi-bell"></i> Mis Notificaciones</h3>
+            <p class="text-muted small">Estado de tus vehículos en el taller</p>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle-fill fs-2 text-success mb-2"></i>
+                    <h5 class="card-title">{{ stats.listos_retiro }}</h5>
+                    <p class="card-text text-muted small">Listos para Retiro</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi">
+                <div class="card-body text-center">
+                    <i class="bi bi-wrench fs-2 text-warning mb-2"></i>
+                    <h5 class="card-title">{{ stats.en_taller }}</h5>
+                    <p class="card-text text-muted small">En Taller</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas de Notificaciones -->
+    {% if notificaciones %}
+    <div class="row mb-4">
+        <div class="col-12">
+            {% for notificacion in notificaciones %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill fs-5 me-3"></i>
+                    <div class="flex-grow-1">
+                        <strong>{{ notificacion.titulo }}</strong>
+                        <p class="mb-0 small text-muted">{{ notificacion.mensaje }}</p>
+                    </div>
+                    <small class="text-muted ms-2">{{ notificacion.fecha_creacion|date:"H:i" }}</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Vehículos Listos para Retiro -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-check-circle-fill"></i> Vehículos Listos para Retiro</h5>
+                </div>
+                <div class="card-body">
+                    {% if ingresos_terminados %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Patente</th>
+                                    <th>Marca/Modelo</th>
+                                    <th>Motivo</th>
+                                    <th>Fecha Término</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ingreso in ingresos_terminados %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-success">{{ ingreso.vehiculo.patente }}</strong>
+                                    </td>
+                                    <td>{{ ingreso.vehiculo.marca }} {{ ingreso.vehiculo.modelo }}</td>
+                                    <td>{{ ingreso.motivo|truncatewords:5 }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ ingreso.fecha_termino|date:"d/m/Y H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'ingreso_marcar_retirado' ingreso.pk %}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-check-double"></i> Retirar
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> No hay vehículos listos para retiro en este momento.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehículos en Taller -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-wrench"></i> Vehículos en Taller</h5>
+                </div>
+                <div class="card-body">
+                    {% if ingresos_en_proceso %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Patente</th>
+                                    <th>Marca/Modelo</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Programada</th>
+                                    <th>Repuesto Necesario</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ingreso in ingresos_en_proceso %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ ingreso.vehiculo.patente }}</strong>
+                                    </td>
+                                    <td>{{ ingreso.vehiculo.marca }} {{ ingreso.vehiculo.modelo }}</td>
+                                    <td>
+                                        {% if ingreso.estado == 'PROGRAMADO' %}
+                                            <span class="badge bg-primary">Programado</span>
+                                        {% elif ingreso.estado == 'EN_PROCESO' %}
+                                            <span class="badge bg-warning text-dark">En Proceso</span>
+                                        {% elif ingreso.estado == 'EN_PAUSA' %}
+                                            <span class="badge bg-danger">En Pausa</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ ingreso.fecha_programada|date:"d/m/Y H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        {% if ingreso.repuesto_necesario %}
+                                            <small>{{ ingreso.repuesto_necesario }}</small>
+                                        {% else %}
+                                            <small class="text-muted">-</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'ingreso_detail' ingreso.pk %}" class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye"></i> Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> No hay vehículos en taller en este momento.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

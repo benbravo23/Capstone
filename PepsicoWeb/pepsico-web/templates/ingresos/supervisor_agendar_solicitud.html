@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Agendar Solicitud - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h3><i class="bi bi-calendar-event"></i> Agendar Solicitud - {{ solicitud.vehiculo.patente }}</h3>
+            <p class="text-muted small">Completa los detalles y selecciona un horario disponible para aprobar la solicitud</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-pepsi">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Información de la solicitud (solo lectura) -->
+                        <div class="alert alert-info mb-3">
+                            <strong>Información de la Solicitud:</strong><br>
+                            <small>
+                                Chofer: <strong>{{ solicitud.chofer.nombre }}</strong><br>
+                                Vehículo: <strong>{{ solicitud.vehiculo.patente }}</strong><br>
+                                Motivo: <strong>{{ solicitud.motivo }}</strong>
+                            </small>
+                        </div>
+
+                        <!-- Campo Vehículo (oculto, ya que viene de la solicitud) -->
+                        <input type="hidden" name="vehiculo" value="{{ solicitud.vehiculo.pk }}" />
+                        
+                        <!-- Campo Chofer (oculto) -->
+                        <input type="hidden" name="chofer" value="{{ solicitud.chofer.pk }}" />
+
+                        <!-- Supervisor (oculto, se asigna automáticamente) -->
+                        <input type="hidden" name="supervisor" value="{{ user.pk }}" />
+
+                        <!-- Motivo (prellenado pero editable) -->
+                        <div class="mb-3">
+                            <label for="motivo" class="form-label">Motivo del Ingreso</label>
+                            <textarea name="motivo" id="motivo" class="form-control" rows="3">{{ solicitud.motivo }}</textarea>
+                        </div>
+
+                        <!-- Repuesto necesario -->
+                        <div class="mb-3 position-relative">
+                            <label for="repuesto_necesario" class="form-label">Repuesto necesario</label>
+                            <input type="text" name="repuesto_necesario" id="repuesto_necesario" class="form-control" placeholder="Ej: Filtro de aceite, pastillas de freno..." list="repuestos_sugeridos">
+                            <datalist id="repuestos_sugeridos">
+                                {% for repuesto in repuestos_comunes %}
+                                <option value="{{ repuesto }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea name="observaciones" id="observaciones" class="form-control" rows="2" placeholder="Observaciones adicionales (opcional)"></textarea>
+                        </div>
+
+                        <!-- Kilometraje (opcional) -->
+                        <div class="mb-3">
+                            <label for="kilometraje_ingreso" class="form-label">Kilometraje</label>
+                            <input type="number" name="kilometraje_ingreso" id="kilometraje_ingreso" class="form-control" placeholder="Kilometraje actual del vehículo">
+                        </div>
+
+                        <hr>
+
+                        <!-- Scheduler: Seleccionar fecha y hora -->
+                        <div class="mb-3">
+                            <h6><i class="bi bi-calendar2-check"></i> Asignar fecha y hora de ingreso</h6>
+                            {% include 'ingresos/_scheduler_grid.html' %}
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'supervisor_notificaciones' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-pepsi-primary">
+                                <i class="bi bi-check-circle"></i> Agendar y Aprobar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

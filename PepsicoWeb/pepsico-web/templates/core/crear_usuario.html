@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">
+                <i class="bi bi-person-plus text-primary"></i> {{ titulo }}
+            </h1>
+            <p class="text-muted">Crea un nuevo usuario en el sistema</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'gestionar_usuarios' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver a Usuarios
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-form-control"></i> Formulario de Creación</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    <i class="bi bi-envelope"></i> Email *
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.email.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                                    <i class="bi bi-person"></i> Nombre Completo *
+                                </label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.nombre.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.rut.id_for_label }}" class="form-label">
+                                    <i class="bi bi-card-text"></i> RUT *
+                                </label>
+                                {{ form.rut }}
+                                {% if form.rut.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.rut.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                                    <i class="bi bi-telephone"></i> Teléfono (Opcional)
+                                </label>
+                                {{ form.telefono }}
+                                {% if form.telefono.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.telefono.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.rol.id_for_label }}" class="form-label">
+                                    <i class="bi bi-shield-lock"></i> Rol *
+                                </label>
+                                {{ form.rol }}
+                                {% if form.rol.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.rol.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.activo.id_for_label }}" class="form-label">
+                                    <i class="bi bi-check-circle"></i> Usuario Activo
+                                </label>
+                                <div class="form-check mt-2">
+                                    {{ form.activo }}
+                                    <label class="form-check-label" for="{{ form.activo.id_for_label }}">
+                                        Activar usuario
+                                    </label>
+                                </div>
+                                {% if form.activo.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.activo.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6 class="mb-3"><i class="bi bi-lock"></i> Contraseña</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                    Contraseña *
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.password1.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                    Confirmar Contraseña *
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.password2.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle"></i> 
+                            <strong>Nota:</strong> La contraseña debe ser segura y contener al menos 8 caracteres con mayúsculas, minúsculas y números.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-pepsi-primary">
+                                <i class="bi bi-plus-circle"></i> Crear Usuario
+                            </button>
+                            <a href="{% url 'gestionar_usuarios' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-pepsi bg-light">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información</h5>
+                </div>
+                <div class="card-body">
+                    <h6><i class="bi bi-shield-lock"></i> Roles Disponibles</h6>
+                    <ul class="list-unstyled">
+                        <li><span class="badge bg-danger">ADMIN</span> - Administrador del sistema</li>
+                        <li><span class="badge bg-warning text-dark">SUPERVISOR</span> - Supervisor de taller</li>
+                        <li><span class="badge bg-primary">MECANICO</span> - Mecánico</li>
+                        <li><span class="badge bg-success">CHOFER</span> - Chofer</li>
+                        <li><span class="badge bg-secondary">GUARDIA</span> - Guardia de entrada</li>
+                        <li><span class="badge bg-info">EHS</span> - Encargado HSE</li>
+                    </ul>
+
+                    <hr>
+
+                    <h6><i class="bi bi-shield-exclamation"></i> Requisitos de Contraseña</h6>
+                    <ul class="small list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> Al menos 8 caracteres</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Al menos una mayúscula</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Al menos una minúscula</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Al menos un número</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

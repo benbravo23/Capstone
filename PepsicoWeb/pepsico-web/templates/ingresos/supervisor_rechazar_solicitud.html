@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Rechazar Solicitud - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">
+                <i class="bi bi-x-circle text-danger"></i> Rechazar Solicitud
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 offset-lg-3">
+            <div class="card card-pepsi border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Información de la Solicitud</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1"><strong>Vehículo:</strong></p>
+                        <h5 class="mb-0">{{ solicitud.vehiculo.patente }}</h5>
+                        <p class="small text-muted mb-0">{{ solicitud.vehiculo.marca }} {{ solicitud.vehiculo.modelo }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1"><strong>Chofer:</strong></p>
+                        <p class="mb-0">{{ solicitud.chofer.nombre }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1"><strong>Motivo solicitado:</strong></p>
+                        <p class="mb-0">{{ solicitud.motivo }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1"><strong>Fecha estimada de ingreso:</strong></p>
+                        <p class="mb-0">{{ solicitud.fecha_estimada_ingreso|date:"d/m/Y H:i" }}</p>
+                    </div>
+
+                    <hr>
+
+                    <!-- Formulario de rechazo -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">
+                                <strong>Observaciones (opcional)</strong>
+                            </label>
+                            <textarea 
+                                id="observaciones" 
+                                name="observaciones" 
+                                class="form-control" 
+                                rows="4"
+                                placeholder="Explica el motivo del rechazo para informar al chofer...">
+                            </textarea>
+                        </div>
+
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Advertencia:</strong> El chofer será notificado del rechazo y podrá hacer una nueva solicitud.
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Confirmar Rechazo
+                            </button>
+                            <a href="{% url 'supervisor_notificaciones' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-pepsi {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+    }
+</style>
+{% endblock %}

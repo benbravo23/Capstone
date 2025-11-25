@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Tiempos - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">
+                <i class="bi bi-clock-history text-primary"></i> Reporte de Tiempos
+            </h1>
+            <p class="text-muted">Análisis detallado de tiempos de taller</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'reportes_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card card-pepsi mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Desde</label>
+                    <input type="date" name="fecha_desde" class="form-control" value="{{ fecha_desde }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" name="fecha_hasta" class="form-control" value="{{ fecha_hasta }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos</option>
+                        {% for value, label in estados %}
+                        <option value="{{ value }}" {% if estado == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-pepsi-primary w-100">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Botón de exportación -->
+    <div class="mb-3">
+        <a href="{% url 'exportar_reporte_csv' %}?tipo=tiempos&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}" 
+           class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar a CSV
+        </a>
+    </div>
+    
+    <!-- Tabla de resultados -->
+    <div class="card card-pepsi">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-table"></i> Detalle de Ingresos ({{ ingresos_data|length }} registros)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Patente</th>
+                            <th>Vehículo</th>
+                            <th>Fecha Programada</th>
+                            <th>Estado</th>
+                            <th>Duración (min)</th>
+                            <th>Duración (hrs)</th>
+                            <th>Pausas</th>
+                            <th>Supervisor</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in ingresos_data %}
+                        <tr>
+                            <td><strong>{{ item.ingreso.vehiculo.patente }}</strong></td>
+                            <td>{{ item.ingreso.vehiculo.marca }} {{ item.ingreso.vehiculo.modelo }}</td>
+                            <td>{{ item.ingreso.fecha_programada|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if item.ingreso.estado == 'PROGRAMADO' %}
+                                <span class="badge bg-info">{{ item.ingreso.get_estado_display }}</span>
+                                {% elif item.ingreso.estado == 'EN_PROCESO' %}
+                                <span class="badge bg-warning">{{ item.ingreso.get_estado_display }}</span>
+                                {% elif item.ingreso.estado == 'EN_PAUSA' %}
+                                <span class="badge bg-danger">{{ item.ingreso.get_estado_display }}</span>
+                                {% elif item.ingreso.estado == 'TERMINADO' %}
+                                <span class="badge bg-success">{{ item.ingreso.get_estado_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.duracion_minutos|default:"N/A" }}</td>
+                            <td>{{ item.duracion_horas|default:"N/A" }}</td>
+                            <td><span class="badge bg-secondary">{{ item.num_pausas }}</span></td>
+                            <td>{{ item.ingreso.supervisor.nombre|default:"N/A" }}</td>
+                            <td>
+                                <a href="{% url 'ingreso_detail' item.ingreso.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                No hay datos disponibles para el período seleccionado
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Notificaciones - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">
+                <i class="bi bi-bell"></i> Notificaciones - Solicitudes de Ingreso
+            </h1>
+            <p class="text-muted small mt-2">Gestiona las solicitudes de ingreso de los choferes</p>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center">
+                <h4 class="text-warning">{{ stats.pendientes }}</h4>
+                <p class="small text-muted mb-0">Pendientes de Revisar</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center">
+                <h4 class="text-success">{{ stats.aprobadas_hoy }}</h4>
+                <p class="small text-muted mb-0">Aprobadas Hoy</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center">
+                <h4 class="text-danger">{{ stats.rechazadas }}</h4>
+                <p class="small text-muted mb-0">Rechazadas</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Solicitudes Pendientes -->
+        <div class="col-lg-8">
+            <div class="card card-pepsi">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Solicitudes Pendientes ({{ solicitudes_pendientes.count }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if solicitudes_pendientes %}
+                        {% for solicitud in solicitudes_pendientes %}
+                        <div class="mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <i class="bi bi-truck text-primary"></i>
+                                        {{ solicitud.vehiculo.patente }}
+                                        <small class="text-muted">({{ solicitud.vehiculo.marca }} {{ solicitud.vehiculo.modelo }})</small>
+                                    </h6>
+                                    <p class="small text-muted mb-1">
+                                        <strong>Chofer:</strong> {{ solicitud.chofer.nombre }}
+                                    </p>
+                                </div>
+                                <span class="badge bg-warning text-dark">{{ solicitud.dias_desde_solicitud }} días</span>
+                            </div>
+
+                            <!-- Información de la solicitud -->
+                            <div class="small mb-2">
+                                <p class="mb-1">
+                                    <strong>Motivo:</strong> {{ solicitud.motivo }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-calendar"></i>
+                                    <strong>Solicitado:</strong> {{ solicitud.fecha_solicitud|date:"d/m/Y H:i" }}
+                                </p>
+                                <p class="mb-0">
+                                    <i class="bi bi-clock"></i>
+                                    <strong>Ingreso estimado:</strong> {{ solicitud.fecha_estimada_ingreso|date:"d/m/Y H:i" }}
+                                </p>
+                            </div>
+
+                            <!-- Botones de acción -->
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'supervisor_agendar_solicitud' solicitud.pk %}" class="btn btn-sm btn-success">
+                                    <i class="bi bi-calendar-event"></i> Agendar y Aprobar
+                                </a>
+                                <a href="{% url 'supervisor_rechazar_solicitud' solicitud.pk %}" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-x-circle"></i> Rechazar
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-success mb-0" role="alert">
+                            <i class="bi bi-check-circle"></i>
+                            <strong>¡Excelente!</strong> No tienes solicitudes pendientes por revisar.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimas Solicitudes Procesadas -->
+        <div class="col-lg-4">
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-clock-history"></i>
+                        Últimas Procesadas (Tú)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if mis_solicitudes %}
+                        <div class="list-group list-group-flush">
+                            {% for solicitud in mis_solicitudes %}
+                            <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="small">
+                                        <p class="mb-1">
+                                            <strong>{{ solicitud.vehiculo.patente }}</strong>
+                                            <span class="badge {% if solicitud.estado == 'APROBADA' %}bg-success{% elif solicitud.estado == 'COMPLETADA' or solicitud.estado == 'RETIRADA' %}bg-success-light{% else %}bg-danger{% endif %} ms-1" style="{% if solicitud.estado == 'COMPLETADA' or solicitud.estado == 'RETIRADA' %}background-color: #90EE90 !important; color: #1a5e1a;{% endif %}">
+                                                {{ solicitud.get_estado_display }}
+                                            </span>
+                                        </p>
+                                        <p class="text-muted mb-0">
+                                            {{ solicitud.chofer.nombre|truncatewords:3 }}
+                                        </p>
+                                    </div>
+                                    <small class="text-muted text-nowrap">
+                                        {{ solicitud.fecha_respuesta|date:"d/m H:i" }}
+                                    </small>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">
+                            <small>Sin solicitudes procesadas aún</small>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-pepsi {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+    }
+
+    .card-pepsi:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,143 @@
+
+
+<div class="table-responsive" id="scheduler-container" style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px;">
+    <table class="table table-sm align-middle">
+        <thead>
+            <tr>
+                <th>Fecha / Máquina</th>
+                {% if slots and slots.0.maquinas.0.row %}
+                    {% for h in slots.0.maquinas.0.row %}
+                    <th class="text-center small">{{ h.dt|date:"H:i" }}</th>
+                    {% endfor %}
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for day in slots %}
+            <!-- Fila de título del día -->
+            <tr>
+                <td colspan="11" style="background-color: #004B93; color: white; padding: 10px 8px; font-weight: normal;">{{ day.day|date:"d/m/Y (l)" }}</td>
+            </tr>
+            
+            <!-- Filas por máquina -->
+            {% for maquina_group in day.maquinas %}
+            <tr>
+                <td style="min-width: 180px; white-space: nowrap;">
+                    <small class="d-block text-muted">{{ maquina_group.maquina.get_tipo_display }} #{{ maquina_group.maquina.numero }}</small>
+                </td>
+                {% for slot in maquina_group.row %}
+                <td class="text-center p-1">
+                    {% if slot.ocupado %}
+                    <span class="badge bg-danger" title="Máquina ocupada">Ocupado</span>
+                    {% else %}
+                        {% with slot_value=slot.slot_value %}
+                            {% comment %}Detectar si este slot fue el seleccionado previamente{% endcomment %}
+                            {% if selected_slot and selected_slot == slot_value %}
+                                <button type="button" data-dt="{{ slot_value }}" class="btn btn-sm btn-success select-slot selected" disabled title="Este slot fue seleccionado">Seleccionado</button>
+                            {% else %}
+                                <button type="button" data-dt="{{ slot_value }}" class="btn btn-sm btn-outline-success select-slot" title="Seleccionar esta máquina y hora">Seleccionar</button>
+                            {% endif %}
+                        {% endwith %}
+                        {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<input type="hidden" name="slot" id="scheduler_slot_input" />
+
+<div class="d-flex justify-content-end mt-2">
+    {% comment %} Enlace para ver más días: incrementa count en +7 {% endcomment %}
+    {% if count %}
+        {% with next_count=count|add:7 %}
+            {% if request.path %}
+            <a href="{{ request.path }}?count={{ next_count }}" class="btn btn-outline-primary btn-sm">Ver más días</a>
+            {% else %}
+            <a href="?count={{ next_count }}" class="btn btn-outline-primary btn-sm">Ver más días</a>
+            {% endif %}
+        {% endwith %}
+    {% else %}
+        <a href="?count=14" class="btn btn-outline-primary btn-sm">Ver más días</a>
+    {% endif %}
+</div>
+
+<style>
+    .table-sm td, .table-sm th { padding: 0.35rem; }
+    .select-slot { width: 100%; }
+</style>
+
+<script>
+
+// Scroll suave al botón de ver más días si se cargó con parámetro count
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('count')) {
+        // Esperar un poco para que el DOM esté completamente renderizado
+        setTimeout(function() {
+            const viewMoreBtn = document.querySelector('.d-flex.justify-content-end a');
+            if (viewMoreBtn) {
+                viewMoreBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
+    }
+});
+
+document.addEventListener('click', function(event){
+    var btn = event.target.closest('.select-slot');
+    if(!btn) return;
+    
+    event.preventDefault();
+    
+    var dt = btn.getAttribute('data-dt');
+    console.log('[Scheduler] Slot seleccionado:', dt);
+
+
+    document.querySelectorAll('.select-slot').forEach(function(b){
+        b.classList.remove('btn-success');
+        b.classList.remove('selected');
+        b.classList.add('btn-outline-success');
+        b.textContent = 'Seleccionar';
+        b.disabled = false;
+    });
+
+    btn.classList.remove('btn-outline-success');
+    btn.classList.add('btn-success');
+    btn.classList.add('selected');
+    btn.textContent = 'Seleccionado';
+    btn.disabled = true;
+
+
+    var schedulerInput = document.getElementById('fecha_programada_scheduler');
+    if(schedulerInput){
+        console.log('[Scheduler] Llenando fecha_programada_scheduler');
+        schedulerInput.value = dt;
+        return;
+    }
+
+  
+    var hidden = document.getElementById('scheduler_slot_input');
+    if(hidden){
+        console.log('[Scheduler] Llenando scheduler_slot_input:', dt);
+        hidden.value = dt;
+   
+        var form = hidden.closest('form');
+        if(form){
+            console.log('[Scheduler] Enviando formulario...');
+            setTimeout(function(){ 
+                console.log('[Scheduler] Form submit!');
+                form.submit(); 
+            }, 300);
+        } else {
+            console.log('[Scheduler] No se encontró formulario padre');
+        }
+    } else {
+        console.log('[Scheduler] No se encontró input scheduler_slot_input');
+    }
+});
+</script>
+

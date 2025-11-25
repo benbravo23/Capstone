@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Dashboard - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="bi bi-house-door text-primary"></i> Inicio
+            </h1>
+            <p class="lead text-muted">Bienvenido, {{ user.nombre }}</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Card: Vehículos (Admin, Supervisor, Bodega, EHS) - NO MECANICO -->
+        {% if user.rol|upper == 'ADMIN' or user.rol|upper == 'SUPERVISOR' or user.rol|upper == 'BODEGA' or user.rol|upper == 'EHS' %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-truck fs-1 text-primary mb-3"></i>
+                    <h5 class="card-title">Vehículos</h5>
+                    <p class="card-text text-muted">Gestión de flota</p>
+                    <a href="{% url 'vehiculos_list' %}" class="btn btn-pepsi-primary btn-sm">Ver todos</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Card: Ingresos (Todos menos Guardia y Chofer) -->
+        {% if user.rol|upper != 'GUARDIA' and user.rol|upper != 'CHOFER' %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-clipboard-check fs-1 text-success mb-3"></i>
+                    <h5 class="card-title">Ingresos</h5>
+                    <p class="card-text text-muted">Control de taller</p>
+                    <a href="{% url 'ingresos_list' %}" class="btn btn-pepsi-primary btn-sm">Ver ingresos</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Card: Tareas (Solo Mecánico) -->
+        {# Solo mostrar la tarjeta una vez, no duplicar #}
+        {% if user.rol|upper == 'MECANICO' %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-list-check fs-1 text-warning mb-3"></i>
+                    <h5 class="card-title">Mis Tareas</h5>
+                    <p class="card-text text-muted">Tareas asignadas</p>
+                    <a href="{% url 'mecanico_tareas' %}" class="btn btn-pepsi-primary btn-sm">Ver tareas</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Card: Tareas (Solo Mecánico) -->
+
+
+        <!-- Card: Solicitar Ingreso (Solo Chofer) -->
+        {% if user.rol|upper == 'CHOFER' %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-file-earmark-arrow-up fs-1 text-info mb-3"></i>
+                    <h5 class="card-title">Solicitar Ingreso</h5>
+                    <p class="card-text text-muted">Nuevo ingreso al taller</p>
+                    <a href="{% url 'chofer_solicitar_ingreso' %}" class="btn btn-pepsi-primary btn-sm">Solicitar</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Card: Notificaciones (Solo Supervisor) -->
+        {% if user.rol|upper == 'SUPERVISOR' %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi h-100 position-relative">
+                <div class="card-body text-center">
+                    <i class="bi bi-bell fs-1 text-danger mb-3"></i>
+                    <h5 class="card-title">Notificaciones</h5>
+                    <p class="card-text text-muted">Solicitudes pendientes</p>
+                    {% if solicitudes_pendientes_count > 0 %}
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge rounded-circle bg-warning text-dark" style="font-size: 1rem; padding: 0.5rem 0.7rem;">
+                            {{ solicitudes_pendientes_count }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'supervisor_notificaciones' %}" class="btn btn-pepsi-primary btn-sm">Ver notificaciones</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Card: Agenda (Admin, Supervisor, Guardia) -->
+        {% if user.rol|upper == 'ADMIN' or user.rol|upper == 'SUPERVISOR' or user.rol|upper == 'GUARDIA' %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar3 fs-1 text-warning mb-3"></i>
+                    <h5 class="card-title">Agenda</h5>
+                    <p class="card-text text-muted">Programación</p>
+                    {% if user.rol|upper == 'SUPERVISOR' or user.rol|upper == 'ADMIN' %}
+                        <a href="{% url 'ingreso_create' %}" class="btn btn-pepsi-primary btn-sm">Programar ingreso</a>
+                    {% elif user.rol|upper == 'GUARDIA' %}
+                        <a href="{% url 'guard_dashboard' %}" class="btn btn-pepsi-primary btn-sm">Ver agenda</a>
+                    {% else %}
+                        <a href="{% url 'ingresos_list' %}" class="btn btn-pepsi-primary btn-sm">Ver agenda</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Card: Reportes (Admin, Supervisor, EHS) -->
+        {% if user.rol|upper == 'ADMIN' or user.rol|upper == 'SUPERVISOR' or user.rol|upper == 'EHS' %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up fs-1 text-info mb-3"></i>
+                    <h5 class="card-title">Reportes</h5>
+                    <p class="card-text text-muted">Estadísticas y KPIs</p>
+                    <a href="{% url 'reportes_dashboard' %}" class="btn btn-pepsi-primary btn-sm">Ver reportes</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Card: Gestionar Usuarios (Solo Admin) -->
+        {% if user.rol|upper == 'ADMIN' %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-pepsi h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-1 text-success mb-3"></i>
+                    <h5 class="card-title">Usuarios</h5>
+                    <p class="card-text text-muted">Gestión de usuarios</p>
+                    <a href="{% url 'gestionar_usuarios' %}" class="btn btn-pepsi-primary btn-sm">Gestionar</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Sección de Tareas para Mecánico -->
+{% if user.rol|upper == 'MECANICO' %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-pepsi">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Mis Tareas Pendientes</h5>
+                    <a href="{% url 'mecanico_tareas' %}" class="btn btn-sm btn-outline-dark">
+                        <i class="bi bi-arrow-right"></i> Ver todas
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if tareas_recientes %}
+                        {% for tarea in tareas_recientes %}
+                        <div class="mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <!-- Encabezado de la tarea -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">{{ tarea.titulo }}</h6>
+                                    {% if tarea.ingreso.vehiculo %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-truck"></i> {{ tarea.ingreso.vehiculo.patente }} 
+                                        - {{ tarea.ingreso.vehiculo.marca }} {{ tarea.ingreso.vehiculo.modelo }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                <span class="badge {% if tarea.estado == 'PENDIENTE' %}bg-warning{% elif tarea.estado == 'EN_PROCESO' %}bg-info{% else %}bg-success{% endif %}">
+                                    {{ tarea.get_estado_display }}
+                                </span>
+                            </div>
+
+                            <!-- Prioridad y fechas -->
+                            <div class="row g-2 mb-2">
+                                <div class="col-auto">
+                                    {% if tarea.prioridad %}
+                                    <small>
+                                        <span class="badge {% if tarea.prioridad == 'URGENTE' %}bg-danger{% elif tarea.prioridad == 'ALTA' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                            {{ tarea.get_prioridad_display }}
+                                        </span>
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                <div class="col-auto">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar"></i> {{ tarea.fecha_asignacion|date:"d/m/Y" }}
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Descripción corta -->
+                            {% if tarea.descripcion %}
+                            <p class="small text-muted mb-2" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                                {{ tarea.descripcion|truncatewords:15 }}
+                            </p>
+                            {% endif %}
+
+                            <!-- Barra de progreso de tiempo -->
+                            {% if tarea.tiempo_estimado_minutos %}
+                            <div class="progress mb-2" style="height: 18px;">
+                                <div class="progress-bar {% if tarea.porcentaje_tiempo <= 80 %}bg-success{% elif tarea.porcentaje_tiempo <= 100 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ tarea.porcentaje_tiempo|default:0 }}%"
+                                     aria-valuenow="{{ tarea.porcentaje_tiempo|default:0 }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    <small>{{ tarea.tiempo_invertido_minutos }}/{{ tarea.tiempo_estimado_minutos }} min</small>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Botón de ver detalle -->
+                            <a href="{% url 'tarea_detail' tarea.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Ver detalle
+                            </a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info mb-0" role="alert">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>¡Bien hecho!</strong> No tienes tareas pendientes asignadas.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Importación de Datos (Solo Admin y Supervisor) -->
+{% if user.rol|upper == 'ADMIN' or user.rol|upper == 'SUPERVISOR' %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-file-earmark-arrow-up"></i> Importación de Datos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'import_vehiculos' %}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-truck"></i> Importar Vehículos desde CSV/Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

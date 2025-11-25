@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Ingresos al Taller - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">
+                <i class="bi bi-clipboard-check text-primary"></i> Ingresos al Taller
+            </h1>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user.rol == 'ADMIN' or user.rol == 'SUPERVISOR' %}
+            <a href="{% url 'ingreso_create' %}" class="btn btn-pepsi-primary">
+                <i class="bi bi-plus-circle"></i> Programar Ingreso
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card card-pepsi text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ stats.total }}</h3>
+                    <small class="text-muted">Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card card-pepsi text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ stats.programados }}</h3>
+                    <small class="text-muted">Programados</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card card-pepsi text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ stats.en_proceso }}</h3>
+                    <small class="text-muted">En Proceso</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card card-pepsi text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ stats.terminados }}</h3>
+                    <small class="text-muted">Terminados</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card card-pepsi mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por patente o motivo..." value="{{ query }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        {% for value, label in estados %}
+                        <option value="{{ value }}" {% if estado_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-pepsi-primary w-100">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de ingresos -->
+    <div class="row">
+        {% for ingreso in ingresos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card card-pepsi h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-truck-front"></i> {{ ingreso.vehiculo.patente }}
+                        </h5>
+                        {% if ingreso.estado == 'PROGRAMADO' %}
+                        <span class="badge bg-info">{{ ingreso.get_estado_display }}</span>
+                        {% elif ingreso.estado == 'EN_PROCESO' %}
+                        <span class="badge bg-warning text-dark">{{ ingreso.get_estado_display }}</span>
+                        {% elif ingreso.estado == 'EN_PAUSA' %}
+                        <span class="badge bg-secondary">{{ ingreso.get_estado_display }}</span>
+                        {% elif ingreso.estado == 'TERMINADO' %}
+                        <span class="badge bg-success">{{ ingreso.get_estado_display }}</span>
+                        {% else %}
+                        <span class="badge bg-danger">{{ ingreso.get_estado_display }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="card-text">
+                        <strong>{{ ingreso.vehiculo.marca }} {{ ingreso.vehiculo.modelo }}</strong><br>
+                        <small class="text-muted">
+                            <i class="bi bi-calendar"></i> {{ ingreso.fecha_programada|date:"d/m/Y H:i" }}<br>
+                            <i class="bi bi-person"></i> Supervisor: {{ ingreso.supervisor.nombre|default:"Sin asignar" }}<br>
+                            <strong>Motivo:</strong> {{ ingreso.motivo|truncatewords:8 }}
+                        </small>
+                    </p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'ingreso_detail' ingreso.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye"></i> Ver Detalle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No se encontraron ingresos.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

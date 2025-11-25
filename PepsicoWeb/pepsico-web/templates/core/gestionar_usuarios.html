@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">
+                <i class="bi bi-people text-primary"></i> {{ titulo }}
+            </h1>
+            <p class="text-muted">Administra los usuarios del sistema</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'crear_usuario' %}" class="btn btn-pepsi-primary">
+                <i class="bi bi-plus-circle"></i> Nuevo Usuario
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center">
+                <div class="card-body">
+                    <h3 class="mb-0 text-primary">{{ usuarios.count }}</h3>
+                    <p class="text-muted mb-0">Total de Usuarios</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center">
+                <div class="card-body">
+                    <h3 class="mb-0 text-success">{{ usuarios|dictsort:"activo"|last }}</h3>
+                    <p class="text-muted mb-0">Usuarios Activos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-pepsi">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-list-check"></i> Lista de Usuarios</h5>
+        </div>
+        <div class="card-body">
+            {% if usuarios %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="bi bi-person"></i> Nombre</th>
+                                <th><i class="bi bi-envelope"></i> Email</th>
+                                <th><i class="bi bi-card-text"></i> RUT</th>
+                                <th><i class="bi bi-shield-lock"></i> Rol</th>
+                                <th><i class="bi bi-telephone"></i> Teléfono</th>
+                                <th><i class="bi bi-check-circle"></i> Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in usuarios %}
+                            <tr>
+                                <td><strong>{{ usuario.nombre }}</strong></td>
+                                <td>{{ usuario.email }}</td>
+                                <td>{{ usuario.rut }}</td>
+                                <td>
+                                    {% if usuario.rol == 'ADMIN' %}
+                                        <span class="badge bg-danger">{{ usuario.rol }}</span>
+                                    {% elif usuario.rol == 'SUPERVISOR' %}
+                                        <span class="badge bg-warning text-dark">{{ usuario.rol }}</span>
+                                    {% elif usuario.rol == 'MECANICO' %}
+                                        <span class="badge bg-primary">{{ usuario.rol }}</span>
+                                    {% elif usuario.rol == 'CHOFER' %}
+                                        <span class="badge bg-success">{{ usuario.rol }}</span>
+                                    {% elif usuario.rol == 'GUARDIA' %}
+                                        <span class="badge bg-secondary">{{ usuario.rol }}</span>
+                                    {% elif usuario.rol == 'EHS' %}
+                                        <span class="badge bg-info">{{ usuario.rol }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ usuario.telefono|default:"—" }}</td>
+                                <td>
+                                    {% if usuario.activo %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{% url 'editar_usuario' usuario.id %}" class="btn btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </a>
+                                        <a href="{% url 'eliminar_usuario' usuario.id %}" class="btn btn-outline-danger">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle"></i> No hay usuarios registrados aún.
+                    <a href="{% url 'crear_usuario' %}" class="alert-link">Crear el primer usuario</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Check-in - {{ ingreso.vehiculo.patente }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-pepsi">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-check-circle"></i> Check-in de Ingreso</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Vehículo:</strong> {{ ingreso.vehiculo.patente }} - {{ ingreso.vehiculo.marca }} {{ ingreso.vehiculo.modelo }}<br>
+                        <strong>Programado para:</strong> {{ ingreso.fecha_programada|date:"d/m/Y H:i" }}
+                    </div>
+                    
+                    <!-- Información del Registro del Guardia -->
+                    {% if registro_guardia %}
+                    <div class="alert alert-success">
+                        <h6 class="mb-2"><i class="bi bi-shield-check"></i> Registro de Guardia</h6>
+                        <strong>Registrado por:</strong> {{ registro_guardia.registrado_por.nombre }}<br>
+                        <strong>Fecha de Entrada:</strong> {{ registro_guardia.fecha_entrada|date:"d/m/Y H:i" }}<br>
+                        {% if registro_guardia.chofer %}
+                        <strong>Chofer:</strong> {{ registro_guardia.chofer.nombre }}<br>
+                        {% endif %}
+                        {% if registro_guardia.motivo %}
+                        <strong>Motivo:</strong> {{ registro_guardia.motivo }}<br>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="fecha_llegada" class="form-label">Fecha de Llegada</label>
+                            <input type="datetime-local" id="fecha_llegada" name="fecha_llegada" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea id="observaciones" name="observaciones" class="form-control" rows="3" placeholder="Observaciones adicionales"></textarea>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Confirmar Check-in
+                            </button>
+                            <a href="{% url 'ingreso_detail' ingreso.pk %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

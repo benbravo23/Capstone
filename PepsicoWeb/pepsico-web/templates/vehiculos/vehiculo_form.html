@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - PepsiCo Taller{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-truck"></i> {{ titulo }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.patente.id_for_label }}" class="form-label">Patente *</label>
+                                {{ form.patente }}
+                                {% if form.patente.errors %}
+                                <div class="text-danger">{{ form.patente.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.vin.id_for_label }}" class="form-label">VIN</label>
+                                {{ form.vin }}
+                                {% if form.vin.errors %}
+                                <div class="text-danger">{{ form.vin.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.marca.id_for_label }}" class="form-label">Marca *</label>
+                                {{ form.marca }}
+                                {% if form.marca.errors %}
+                                <div class="text-danger">{{ form.marca.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.modelo.id_for_label }}" class="form-label">Modelo *</label>
+                                {{ form.modelo }}
+                                {% if form.modelo.errors %}
+                                <div class="text-danger">{{ form.modelo.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.año.id_for_label }}" class="form-label">Año *</label>
+                                {{ form.año }}
+                                {% if form.año.errors %}
+                                <div class="text-danger">{{ form.año.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.tipo.id_for_label }}" class="form-label">Tipo *</label>
+                                {{ form.tipo }}
+                                {% if form.tipo.errors %}
+                                <div class="text-danger">{{ form.tipo.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.kilometraje.id_for_label }}" class="form-label">Kilometraje</label>
+                                {{ form.kilometraje }}
+                                {% if form.kilometraje.errors %}
+                                <div class="text-danger">{{ form.kilometraje.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="{{ form.flota.id_for_label }}" class="form-label">Flota</label>
+                                {{ form.flota }}
+                                {% if form.flota.errors %}
+                                <div class="text-danger">{{ form.flota.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check mt-4">
+                                    {{ form.activo }}
+                                    <label class="form-check-label" for="{{ form.activo.id_for_label }}">
+                                        Activo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+
+                                                <div class="mb-3">
+                                                    <h5 class="mb-2"><i class="bi bi-paperclip"></i> Documentos del Vehículo</h5>
+                                                    <div class="row g-2 align-items-end">
+                                                        <div class="col-md-4">
+                                                            {{ doc_form.tipo_documento.label_tag }}
+                                                            {{ doc_form.tipo_documento }}
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            {{ doc_form.archivo.label_tag }}
+                                                            {{ doc_form.archivo }}
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            {{ doc_form.descripcion.label_tag }}
+                                                            {{ doc_form.descripcion }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="text-muted">Puedes subir documentos como SOAP, siniestros, permisos, etc.</small>
+                                                    </div>
+                                                </div>
+                                                {% if documentos %}
+                                                <div class="mb-3">
+                                                    <h6>Archivos subidos:</h6>
+                                                    <ul class="list-group">
+                                                        {% for doc in documentos %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            <span>
+                                                                <i class="bi bi-file-earmark-text"></i> <strong>{{ doc.tipo_documento }}</strong>
+                                                                {% if doc.descripcion %}<br><small>{{ doc.descripcion }}</small>{% endif %}
+                                                            </span>
+                                                            <span>
+                                                                <a href="{{ doc.archivo.url }}" class="btn btn-outline-primary btn-sm me-2" download>
+                                                                    <i class="bi bi-download"></i> Descargar
+                                                                </a>
+                                                                <form method="post" action="{% url 'eliminar_documento_vehiculo' doc.id %}" style="display:inline;">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este documento?');">
+                                                                        <i class="bi bi-trash"></i> Eliminar
+                                                                    </button>
+                                                                </form>
+                                                            </span>
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                {% endif %}
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% if vehiculo %}{% url 'vehiculo_detail' vehiculo.pk %}{% else %}{% url 'vehiculos_list' %}{% endif %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-pepsi-primary">
+                                <i class="bi bi-save"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

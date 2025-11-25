@@ -1,0 +1,9 @@
+Credencial ADMIN:
+
+usuario: admin@pepsico.cl
+contrasena: admin123
+
+Credenciales usuarios:
+
+usuario: "rol"@pepsico.cl 
+contrasena: Prueba123

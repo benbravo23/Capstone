@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Guardia - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>Panel Guardia</h2>
+            <p class="text-muted">Resumen rápido de ingresos y registro de llegada</p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary p-3">
+                <h6>Ingresos hoy</h6>
+                <h3>{{ count_hoy }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info p-3">
+                <h6>Ingresos semana</h6>
+                <h3>{{ count_semana }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success p-3">
+                <h6>Total ingresos</h6>
+                <h3>{{ count_total }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-dark bg-warning p-3">
+                <h6>En taller ahora</h6>
+                <h3>{{ count_en_taller }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Registro de Accesos - Control de Planta</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <p class="text-muted mb-0">Registra aquí los vehículos que ingresan (ENTRADA) y salen (SALIDA) de la planta.</p>
+                        <div>
+                            <a href="{% url 'guard_export_registros' %}" class="btn btn-outline-secondary btn-sm">Exportar registros (Excel)</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabs: Entrada vs Salida -->
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="entrada-tab" data-bs-toggle="tab" data-bs-target="#entrada-panel" type="button" role="tab" aria-controls="entrada-panel" aria-selected="true">
+                                Registrar Entrada
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="salida-tab" data-bs-toggle="tab" data-bs-target="#salida-panel" type="button" role="tab" aria-controls="salida-panel" aria-selected="false">
+                                Registrar Salida
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Entrada Form -->
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="entrada-panel" role="tabpanel" aria-labelledby="entrada-tab">
+                            <form method="post" enctype="multipart/form-data" class="mb-4">
+                                {% csrf_token %}
+                                <input type="hidden" name="tipo" value="entrada">
+                                <div class="row g-3">
+                                    <div class="col-md-2">
+                                        {{ form.patente.label_tag }}
+                                        <input type="text" name="patente" maxlength="10" class="form-control" placeholder="Ej: ABC123" id="id_patente_entrada" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{ form.marca.label_tag }}
+                                        <input type="text" name="marca" maxlength="50" class="form-control" placeholder="Marca" id="id_marca" readonly style="background-color: #f8f9fa;" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="id_modelo">Modelo</label>
+                                        <input type="text" name="modelo" maxlength="50" class="form-control" placeholder="Modelo" id="id_modelo" readonly style="background-color: #f8f9fa;" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form.motivo.label_tag }}
+                                        {{ form.motivo }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{ form.chofer_nombre.label_tag }}
+                                        {{ form.chofer_nombre }}
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label for="id_photos">Fotos</label>
+                                        <input type="file" id="id_photos" name="photos" multiple accept="image/*" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-1">
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-success w-100" style="font-size: 0.95rem; padding: 0.6rem 0.5rem; font-weight: 600;">
+                                            <i class="bi bi-check-circle"></i> Registrar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Salida Form -->
+                        <div class="tab-pane fade" id="salida-panel" role="tabpanel" aria-labelledby="salida-tab">
+                            <form method="post" class="mb-4">
+                                {% csrf_token %}
+                                <input type="hidden" name="tipo" value="salida">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        {{ form_salida.patente.label_tag }}
+                                        {{ form_salida.patente }}
+                                        <small class="text-muted d-block mt-1">Ingresa la patente que está saliendo</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form_salida.observaciones.label_tag }}
+                                        {{ form_salida.observaciones }}
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-warning w-100" style="font-size: 1rem; padding: 0.75rem 1rem; font-weight: 600;">
+                                            <i class="bi bi-door-closed"></i> Registrar Salida
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <h6 class="mt-4">Últimos registros - Control de Acceso</h6>
+                    <hr>
+                    {% if ultimos_registros %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Patente</th>
+                                        <th>Marca</th>
+                                        <th>Modelo</th>
+                                        <th>Chofer</th>
+                                        <th>Motivo</th>
+                                        <th>Entrada</th>
+                                        <th>Salida</th>
+                                        <th>Duración</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for registro in ultimos_registros %}
+                                    <tr class="{% if registro.fecha_salida %}table-success{% else %}table-warning{% endif %}">
+                                        <td><strong>{{ registro.patente }}</strong></td>
+                                        <td class="small text-muted">{{ registro.marca }}</td>
+                                        <td class="small text-muted">{{ registro.modelo }}</td>
+                                        <td>
+                                            {% if registro.chofer_nombre %}
+                                                {{ registro.chofer_nombre }}
+                                            {% elif registro.chofer %}
+                                                {{ registro.chofer.nombre }}
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </td>
+                                        <td class="small">{{ registro.motivo|truncatewords:5 }}</td>
+                                        <td class="small">{{ registro.fecha_entrada|date:'H:i' }}</td>
+                                        <td class="small">
+                                            {% if registro.fecha_salida %}
+                                                {{ registro.fecha_salida|date:'H:i' }}
+                                            {% else %}
+                                                <span class="badge bg-warning">--:--</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="small">
+                                            {% if registro.fecha_salida %}
+                                                {% if registro.duracion_formateada %}
+                                                    {{ registro.duracion_formateada }}
+                                                {% else %}
+                                                    <em class="text-muted">0min</em>
+                                                {% endif %}
+                                            {% else %}
+                                                <em class="text-muted">--</em>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if registro.fecha_salida %}
+                                                <span class="badge bg-success">Cerrado</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">En planta</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay registros aún.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Autocompletar marca y modelo cuando se ingresa la patente
+    document.addEventListener('DOMContentLoaded', function() {
+        const patenteInput = document.getElementById('id_patente_entrada');
+        const marcaInput = document.getElementById('id_marca');
+        const modeloInput = document.getElementById('id_modelo');
+        let timeoutId;
+        
+        if (patenteInput && marcaInput && modeloInput) {
+            patenteInput.addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                const patente = this.value.trim();
+                
+                if (patente.length >= 2) {
+                    // Después de 500ms sin escribir, hacer la búsqueda
+                    timeoutId = setTimeout(function() {
+                        fetch(`{% url 'api_vehiculo_por_patente' %}?patente=${encodeURIComponent(patente)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    marcaInput.value = data.marca || '';
+                                    modeloInput.value = data.modelo || '';
+                                    marcaInput.style.backgroundColor = '#e8f5e9';
+                                    modeloInput.style.backgroundColor = '#e8f5e9';
+                                } else {
+                                    marcaInput.value = '';
+                                    modeloInput.value = '';
+                                    marcaInput.style.backgroundColor = '#f8f9fa';
+                                    modeloInput.style.backgroundColor = '#f8f9fa';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                marcaInput.value = '';
+                                modeloInput.value = '';
+                                marcaInput.style.backgroundColor = '#f8f9fa';
+                                modeloInput.style.backgroundColor = '#f8f9fa';
+                            });
+                    }, 500);
+                } else {
+                    marcaInput.value = '';
+                    modeloInput.value = '';
+                    marcaInput.style.backgroundColor = '#f8f9fa';
+                    modeloInput.style.backgroundColor = '#f8f9fa';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

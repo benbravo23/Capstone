@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if editar %}Editar{% else %}Crear{% endif %} Tarea - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-{% if editar %}pencil-square{% else %}plus-circle{% endif %}"></i>
+                        {% if editar %}Editar{% else %}Nueva{% endif %} Tarea
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Ingreso:</strong> {{ ingreso.vehiculo.patente }} - {{ ingreso.vehiculo.marca }} {{ ingreso.vehiculo.modelo }}
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.titulo.id_for_label }}" class="form-label">
+                                Título de la Tarea <span class="text-danger">*</span>
+                            </label>
+                            {{ form.titulo }}
+                            {% if form.titulo.errors %}
+                            <div class="text-danger small">{{ form.titulo.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                                Descripción
+                            </label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                            <div class="text-danger small">{{ form.descripcion.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.mecanico.id_for_label }}" class="form-label">
+                                    Mecánico Asignado
+                                </label>
+                                {{ form.mecanico }}
+                                {% if form.mecanico.errors %}
+                                <div class="text-danger small">{{ form.mecanico.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.prioridad.id_for_label }}" class="form-label">
+                                    Prioridad
+                                </label>
+                                {{ form.prioridad }}
+                                {% if form.prioridad.errors %}
+                                <div class="text-danger small">{{ form.prioridad.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.tiempo_estimado_minutos.id_for_label }}" class="form-label">
+                                    Tiempo Estimado (minutos)
+                                </label>
+                                {{ form.tiempo_estimado_minutos }}
+                                {% if form.tiempo_estimado_minutos.errors %}
+                                <div class="text-danger small">{{ form.tiempo_estimado_minutos.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.repuestos_utilizados.id_for_label }}" class="form-label">
+                                Repuestos a Utilizar <span class="text-danger">*</span>
+                            </label>
+                            {{ form.repuestos_utilizados }}
+                            <small class="text-muted d-block mt-1">Especifica los repuestos necesarios para esta tarea (ej: aceite 10W40, filtro de aire, etc.)</small>
+                            {% if form.repuestos_utilizados.errors %}
+                            <div class="text-danger small">{{ form.repuestos_utilizados.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if editar %}
+                        <div class="mb-3">
+                            <label for="{{ form.estado.id_for_label }}" class="form-label">
+                                Estado
+                            </label>
+                            {{ form.estado }}
+                            {% if form.estado.errors %}
+                            <div class="text-danger small">{{ form.estado.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.observaciones.id_for_label }}" class="form-label">
+                                Observaciones
+                            </label>
+                            {{ form.observaciones }}
+                            {% if form.observaciones.errors %}
+                            <div class="text-danger small">{{ form.observaciones.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'ingreso_detail' ingreso.pk %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-pepsi-primary">
+                                <i class="bi bi-{% if editar %}check-circle{% else %}plus-circle{% endif %}"></i>
+                                {% if editar %}Actualizar{% else %}Crear{% endif %} Tarea
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

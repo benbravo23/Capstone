@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Marcar como Retirado - {{ ingreso.vehiculo.patente }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-pepsi">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-check-double"></i> Marcar Vehículo como Retirado</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <strong>✅ Ingreso Completado</strong><br>
+                        El vehículo está listo para ser retirado.
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>Vehículo:</strong> {{ ingreso.vehiculo.patente }} - {{ ingreso.vehiculo.marca }} {{ ingreso.vehiculo.modelo }}<br>
+                        <strong>Estado:</strong> <span class="badge bg-success">Terminado</span><br>
+                        <strong>Fecha de Ingreso:</strong> {{ ingreso.fecha_inicio|date:"d/m/Y H:i" }}<br>
+                        <strong>Fecha de Término:</strong> {{ ingreso.fecha_termino|date:"d/m/Y H:i" }}
+                    </div>
+
+                    <p class="text-muted">
+                        Al confirmar que el vehículo ha sido retirado, se completará todo el proceso de ingreso al taller 
+                        y podrás solicitar un nuevo ingreso si lo necesitas.
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <hr>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-info btn-lg">
+                                <i class="bi bi-check-double"></i> Confirmar Retiro
+                            </button>
+                            <a href="{% url 'ingreso_detail' ingreso.pk %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

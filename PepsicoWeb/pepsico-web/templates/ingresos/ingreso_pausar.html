@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Pausar Ingreso - {{ ingreso.vehiculo.patente }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-pepsi">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class="bi bi-pause-circle"></i> Registrar Pausa</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Vehículo:</strong> {{ ingreso.vehiculo.patente }}<br>
+                        <strong>Estado actual:</strong> {{ ingreso.get_estado_display }}
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.motivo.id_for_label }}" class="form-label">Motivo de la Pausa *</label>
+                            {{ form.motivo }}
+                            {% if form.motivo.errors %}
+                            <div class="text-danger">{{ form.motivo.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted">Ej: Espera de repuesto, Almuerzo, Falta de herramienta</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                            <div class="text-danger">{{ form.descripcion.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.fecha_inicio.id_for_label }}" class="form-label">Fecha de Inicio *</label>
+                            {{ form.fecha_inicio }}
+                            {% if form.fecha_inicio.errors %}
+                            <div class="text-danger">{{ form.fecha_inicio.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="bi bi-pause-circle"></i> Registrar Pausa
+                            </button>
+                            <a href="{% url 'ingreso_detail' ingreso.pk %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

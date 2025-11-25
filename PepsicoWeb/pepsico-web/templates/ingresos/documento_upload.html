@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Subir Documento - {{ ingreso.vehiculo.patente }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-pepsi">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-upload"></i> Subir Documento</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Vehículo:</strong> {{ ingreso.vehiculo.patente }}<br>
+                        <strong>Ingreso:</strong> {{ ingreso.fecha_programada|date:"d/m/Y" }}
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.tipo.id_for_label }}" class="form-label">Tipo de Documento *</label>
+                            {{ form.tipo }}
+                            {% if form.tipo.errors %}
+                            <div class="text-danger">{{ form.tipo.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.archivo.id_for_label }}" class="form-label">Archivo *</label>
+                            {{ form.archivo }}
+                            {% if form.archivo.errors %}
+                            <div class="text-danger">{{ form.archivo.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted d-block mt-1">Formatos permitidos: PDF, JPG, PNG. Máximo 10MB</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                            <div class="text-danger">{{ form.descripcion.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-info btn-lg text-white">
+                                <i class="bi bi-upload"></i> Subir Documento
+                            </button>
+                            <a href="{% url 'ingreso_detail' ingreso.pk %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

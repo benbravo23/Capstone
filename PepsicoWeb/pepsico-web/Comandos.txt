@@ -1,0 +1,15 @@
+cd pepsico-taller
+
+python -m venv venv
+
+Activar el entorno virtual:
+.\venv\Scripts\activate
+
+Instalar dependencias:
+pip install -r requirements.txt
+
+Ejecutar migraciones (por si acaso):
+python manage.py migrate
+
+python manage.py runserver
+

@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard de Reportes - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">
+                <i class="bi bi-graph-up text-primary"></i> Dashboard de Reportes
+            </h1>
+            <p class="text-muted">Indicadores clave de rendimiento (KPIs)</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver a Inicio
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filtros de fecha -->
+    <div class="card card-pepsi mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Desde</label>
+                    <input type="date" name="fecha_desde" class="form-control" value="{% if usar_filtro_fechas %}{{ fecha_desde|date:'Y-m-d' }}{% endif %}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" name="fecha_hasta" class="form-control" value="{% if usar_filtro_fechas %}{{ fecha_hasta|date:'Y-m-d' }}{% endif %}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-pepsi-primary flex-grow-1">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                    <a href="{% url 'reportes_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </a>
+                </div>
+            </form>
+            <div class="mt-2">
+                {% if usar_filtro_fechas %}
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> 
+                        Mostrando datos del <strong>{{ fecha_desde|date:'d/m/Y' }}</strong> al <strong>{{ fecha_hasta|date:'d/m/Y' }}</strong>
+                    </small>
+                {% else %}
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> 
+                        Mostrando <strong>todos los datos</strong> desde <strong>{{ fecha_desde|date:'d/m/Y' }}</strong> al <strong>{{ fecha_hasta|date:'d/m/Y' }}</strong>
+                    </small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- KPIs principales -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-clock-history fs-1 text-primary mb-3"></i>
+                    <h3 class="mb-0">{{ tiempo_promedio }}</h3>
+                    <p class="text-muted mb-0">Tiempo Promedio en Taller</p>
+                    {% if total_terminados > 0 %}
+                    <small class="text-muted d-block mt-2">
+                        {{ total_terminados }} vehículo{% if total_terminados != 1 %}s{% endif %} completado{% if total_terminados != 1 %}s{% endif %}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-clipboard-check fs-1 text-success mb-3"></i>
+                    <h3 class="mb-0">{{ total_ingresos }}</h3>
+                    <p class="text-muted mb-0">Total Ingresos</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-truck fs-1 text-warning mb-3"></i>
+                    <h3 class="mb-0">{{ vehiculos_por_estado.en_proceso }}</h3>
+                    <p class="text-muted mb-0">En Proceso</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card card-pepsi text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-check-circle fs-1 text-info mb-3"></i>
+                    <h3 class="mb-0">{{ vehiculos_por_estado.terminados }}</h3>
+                    <p class="text-muted mb-0">Terminados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gráficos -->
+    <div class="row g-4 mb-4">
+        <!-- Gráfico de estados -->
+        <div class="col-md-6">
+            <div class="card card-pepsi h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Vehículos por Estado</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartEstados"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráfico de ingresos por mes -->
+        <div class="col-md-6">
+            <div class="card card-pepsi h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Ingresos por Mes</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartIngresosMes"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de líneas de ingresos -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card card-pepsi h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-graph-up"></i> Tendencia de Ingresos</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartIngresosTendencia"></canvas>
+                </div>
+            </div>
+        </div>
+    
+    <!-- Productividad por mecánico -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card card-pepsi h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Productividad por Mecánico</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartProductividad"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top vehículos -->
+        <div class="col-md-6">
+            <div class="card card-pepsi h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-trophy"></i> Top 5 Vehículos con Más Ingresos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Patente</th>
+                                    <th>Marca/Modelo</th>
+                                    <th>Ingresos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vehiculo in top_vehiculos %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><strong>{{ vehiculo.patente }}</strong></td>
+                                    <td>{{ vehiculo.marca }} {{ vehiculo.modelo }}</td>
+                                    <td><span class="badge bg-primary">{{ vehiculo.num_ingresos }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No hay datos disponibles</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+<!-- Accesos rápidos a reportes detallados -->
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card card-pepsi text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-clock fs-1 text-primary mb-3"></i>
+                <h5>Reporte de Tiempos</h5>
+                <p class="text-muted">Análisis detallado de tiempos de taller</p>
+                <a href="{% url 'reporte_tiempos' %}" class="btn btn-pepsi-primary">Ver Reporte</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card card-pepsi text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-person-check fs-1 text-success mb-3"></i>
+                <h5>Reporte de Productividad</h5>
+                <p class="text-muted">Rendimiento por mecánico</p>
+                <a href="{% url 'reporte_productividad' %}" class="btn btn-pepsi-primary">Ver Reporte</a>
+            </div>
+        </div>
+    </div>
+    
+    {% if user.rol == 'ADMIN' or user.rol == 'SUPERVISOR' or user.rol == 'BODEGA' %}
+    <div class="col-md-3">
+        <div class="card card-pepsi text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-box-seam fs-1 text-warning mb-3"></i>
+                <h5>Reporte de Repuestos</h5>
+                <p class="text-muted">Repuestos más utilizados</p>
+                <a href="{% url 'reporte_repuestos' %}" class="btn btn-pepsi-primary">Ver Reporte</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="col-md-3">
+        <div class="card card-pepsi text-center h-100">
+            <div class="card-body">
+                <i class="bi bi-exclamation-triangle fs-1 text-danger mb-3"></i>
+                <h5>Vehículos Críticos</h5>
+                <p class="text-muted">Vehículos con más mantenimientos</p>
+                <a href="{% url 'reporte_vehiculos_criticos' %}" class="btn btn-pepsi-primary">Ver Reporte</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección de exportación -->
+<div class="row g-4 mt-4">
+    <div class="col-12">
+        <div class="card card-pepsi text-center">
+            <div class="card-body">
+                <i class="bi bi-download fs-1 text-info mb-3"></i>
+                <h5>Exportar Datos</h5>
+                <p class="text-muted">Descargar reportes en formato CSV o PDF</p>
+                
+                <!-- Dropdown para exportación -->
+                <div class="dropdown">
+                    <button class="btn btn-success dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-download"></i> Exportar Tiempos
+                    </button>
+                    <ul class="dropdown-menu w-100">
+                        <li><a class="dropdown-item" href="{% url 'exportar_reporte_csv' %}?tipo=tiempos&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}">
+                            <i class="bi bi-file-earmark-excel text-success"></i> Descargar CSV
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'exportar_reporte_pdf' %}?tipo=tiempos&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}">
+                            <i class="bi bi-file-earmark-pdf text-danger"></i> Descargar PDF
+                        </a></li>
+                    </ul>
+                </div>
+                
+                <div class="dropdown mt-2">
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-download"></i> Exportar Productividad
+                    </button>
+                    <ul class="dropdown-menu w-100">
+                        <li><a class="dropdown-item" href="{% url 'exportar_reporte_csv' %}?tipo=productividad&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}">
+                            <i class="bi bi-file-earmark-excel text-success"></i> Descargar CSV
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'exportar_reporte_pdf' %}?tipo=productividad&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}">
+                            <i class="bi bi-file-earmark-pdf text-danger"></i> Descargar PDF
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// Gráfico de estados
+const ctxEstados = document.getElementById('chartEstados').getContext('2d');
+new Chart(ctxEstados, {
+    type: 'doughnut',
+    data: {
+        labels: ['Programados', 'En Proceso', 'En Pausa', 'Terminados'],
+        datasets: [{
+            data: [
+                {{ vehiculos_por_estado.programados }},
+                {{ vehiculos_por_estado.en_proceso }},
+                {{ vehiculos_por_estado.en_pausa }},
+                {{ vehiculos_por_estado.terminados }}
+            ],
+            backgroundColor: ['#0dcaf0', '#ffc107', '#dc3545', '#198754']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Gráfico de ingresos por mes
+const ctxIngresosMes = document.getElementById('chartIngresosMes').getContext('2d');
+new Chart(ctxIngresosMes, {
+    type: 'bar',
+    data: {
+        labels: [{% for item in ingresos_por_mes %}'{{ item.mes }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Ingresos',
+            data: [{% for item in ingresos_por_mes %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: '#004B93'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de líneas - Tendencia de ingresos
+const ctxIngresosTendencia = document.getElementById('chartIngresosTendencia').getContext('2d');
+new Chart(ctxIngresosTendencia, {
+    type: 'line',
+    data: {
+        labels: [{% for item in ingresos_por_mes %}'{{ item.mes }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Tendencia de Ingresos',
+            data: [{% for item in ingresos_por_mes %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderColor: '#004B93',
+            backgroundColor: 'rgba(0, 75, 147, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointBackgroundColor: '#004B93',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de productividad
+const ctxProductividad = document.getElementById('chartProductividad').getContext('2d');
+new Chart(ctxProductividad, {
+    type: 'bar',
+    data: {
+        labels: [{% for item in productividad_mecanicos %}'{{ item.nombre }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Tareas Completadas',
+            data: [{% for item in productividad_mecanicos %}{{ item.tareas }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: '#198754'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        indexAxis: 'y',
+        scales: {
+            x: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

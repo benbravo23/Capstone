@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">
+                <i class="bi bi-pencil-square text-primary"></i> {{ titulo }}
+            </h1>
+            <p class="text-muted">Modifica los datos del usuario</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'gestionar_usuarios' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-square"></i> Información del Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation">
+                        {% csrf_token %}
+                        
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                                <i class="bi bi-person"></i> Nombre Completo
+                            </label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.nombre.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                <i class="bi bi-envelope"></i> Correo Electrónico
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- RUT -->
+                        <div class="mb-3">
+                            <label for="{{ form.rut.id_for_label }}" class="form-label">
+                                <i class="bi bi-card-text"></i> RUT
+                            </label>
+                            {{ form.rut }}
+                            {% if form.rut.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.rut.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="mb-3">
+                            <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                                <i class="bi bi-telephone"></i> Teléfono (opcional)
+                            </label>
+                            {{ form.telefono }}
+                            {% if form.telefono.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.telefono.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Rol -->
+                        <div class="mb-3">
+                            <label for="{{ form.rol.id_for_label }}" class="form-label">
+                                <i class="bi bi-shield-lock"></i> Rol
+                            </label>
+                            {{ form.rol }}
+                            {% if form.rol.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.rol.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Activo -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.activo }}
+                                <label for="{{ form.activo.id_for_label }}" class="form-check-label">
+                                    <i class="bi bi-check-circle"></i> Usuario Activo
+                                </label>
+                            </div>
+                            {% if form.activo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.activo.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-pepsi-primary">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                            <a href="{% url 'gestionar_usuarios' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="alert alert-info mt-4" role="alert">
+                <i class="bi bi-lightbulb"></i>
+                <strong>Nota:</strong> Para cambiar la contraseña del usuario, utiliza el 
+                <a href="{% url 'admin:usuarios_usuario_change' usuario.id %}" target="_blank" class="alert-link">panel de administración Django</a>.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

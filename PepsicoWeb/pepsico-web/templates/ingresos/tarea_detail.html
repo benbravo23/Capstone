@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Tarea - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">
+                <i class="bi bi-list-task text-primary"></i> {{ tarea.titulo }}
+            </h1>
+            <p class="text-muted">
+                Ingreso: <a href="{% url 'ingreso_detail' ingreso.pk %}">{{ ingreso.vehiculo.patente }}</a>
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'ingreso_detail' ingreso.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al Ingreso
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Información de la Tarea -->
+        <div class="col-md-8">
+            <!-- Detalles Principales -->
+            <div class="card card-pepsi mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información de la Tarea</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <strong>Estado:</strong><br>
+                            {% if tarea.estado == 'PENDIENTE' %}
+                            <span class="badge bg-secondary fs-6">{{ tarea.get_estado_display }}</span>
+                            {% elif tarea.estado == 'EN_PROCESO' %}
+                            <span class="badge bg-warning fs-6">{{ tarea.get_estado_display }}</span>
+                            {% elif tarea.estado == 'COMPLETADA' %}
+                            <span class="badge bg-success fs-6">{{ tarea.get_estado_display }}</span>
+                            {% else %}
+                            <span class="badge bg-danger fs-6">{{ tarea.get_estado_display }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Prioridad:</strong><br>
+                            {% if tarea.prioridad == 'URGENTE' %}
+                            <span class="badge bg-danger fs-6"><i class="bi bi-exclamation-triangle-fill"></i> {{ tarea.get_prioridad_display }}</span>
+                            {% elif tarea.prioridad == 'ALTA' %}
+                            <span class="badge bg-warning fs-6">{{ tarea.get_prioridad_display }}</span>
+                            {% elif tarea.prioridad == 'MEDIA' %}
+                            <span class="badge bg-info fs-6">{{ tarea.get_prioridad_display }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary fs-6">{{ tarea.get_prioridad_display }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Mecánico Asignado:</strong><br>
+                            {% if tarea.mecanico %}
+                            <i class="bi bi-person-fill text-primary"></i> {{ tarea.mecanico.nombre }}
+                            {% else %}
+                            <span class="text-muted">Sin asignar</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Fecha de Creación:</strong><br>
+                            {{ tarea.fecha_creacion|date:"d/m/Y H:i" }}
+                        </div>
+                        {% if tarea.fecha_completada %}
+                        <div class="col-md-6">
+                            <strong>Fecha de Completado:</strong><br>
+                            {{ tarea.fecha_completada|date:"d/m/Y H:i" }}
+                        </div>
+                        {% endif %}
+                        <div class="col-12">
+                            <strong>Descripción:</strong><br>
+                            <p class="mb-0">{{ tarea.descripcion|default:"Sin descripción"|linebreaks }}</p>
+                        </div>
+                        {% if tarea.repuestos_utilizados %}
+                        <div class="col-12">
+                            <strong>Repuestos Utilizados:</strong><br>
+                            <p class="mb-0">{{ tarea.repuestos_utilizados|linebreaks }}</p>
+                        </div>
+                        {% endif %}
+                        {% if tarea.observaciones %}
+                        <div class="col-12">
+                            <strong>Observaciones:</strong><br>
+                            <p class="mb-0">{{ tarea.observaciones|linebreaks }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial de Cambios -->
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Historial de Cambios ({{ historial|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if historial %}
+                    <div class="timeline">
+                        {% for cambio in historial %}
+                        <div class="timeline-item mb-4">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    {% if cambio.tipo_cambio == 'CREACION' %}
+                                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </div>
+                                    {% elif cambio.tipo_cambio == 'ASIGNACION' %}
+                                    <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    {% elif cambio.tipo_cambio == 'CAMBIO_ESTADO' %}
+                                    <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </div>
+                                    {% elif cambio.tipo_cambio == 'CAMBIO_PRIORIDAD' %}
+                                    <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                    </div>
+                                    {% elif cambio.tipo_cambio == 'COMENTARIO' %}
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-chat-dots"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-pencil"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">{{ cambio.get_tipo_cambio_display }}</h6>
+                                            <p class="mb-1">{{ cambio.descripcion }}</p>
+                                            {% if cambio.valor_anterior and cambio.valor_nuevo %}
+                                            <small class="text-muted">
+                                                <span class="badge bg-light text-dark">{{ cambio.valor_anterior }}</span>
+                                                <i class="bi bi-arrow-right"></i>
+                                                <span class="badge bg-light text-dark">{{ cambio.valor_nuevo }}</span>
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">{{ cambio.fecha|date:"d/m/Y H:i" }}</small>
+                                            {% if cambio.usuario %}
+                                            <small class="text-muted"><i class="bi bi-person"></i> {{ cambio.usuario.nombre }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No hay historial de cambios</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra Lateral -->
+        <div class="col-md-4">
+            <!-- Acciones Rápidas -->
+            <div class="card card-pepsi mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-lightning-fill"></i> Acciones Rápidas</h6>
+                </div>
+                <div class="card-body">
+                    {% if user.rol == 'ADMIN' or user.rol == 'SUPERVISOR' or user.rol == 'MECANICO' %}
+                    <a href="{% url 'tarea_editar_estado' tarea.pk %}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-arrow-repeat"></i> Editar Estado
+                    </a>
+                    {% if tarea.estado != 'COMPLETADA' %}
+                    <a href="{% url 'tarea_completar' tarea.pk %}" class="btn btn-success w-100 mb-2">
+                        <i class="bi bi-check-circle"></i> Marcar como Completada
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tiempos -->
+            <div class="card card-pepsi mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-clock"></i> Tiempos</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Tiempo Estimado:</strong><br>
+                        {% if tarea.tiempo_estimado_minutos %}
+                        <span class="badge bg-info">{{ tarea.tiempo_estimado_minutos }} min</span>
+                        {% else %}
+                        <span class="text-muted">No especificado</span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <strong>
+                            {% if tarea.estado == 'COMPLETADA' %}
+                            Tiempo Invertido:
+                            {% elif tarea.fecha_inicio %}
+                            Tiempo Transcurrido:
+                            {% else %}
+                            Tiempo Invertido:
+                            {% endif %}
+                        </strong><br>
+                        {% if tarea.estado == 'COMPLETADA' %}
+                        <span class="badge bg-success">{{ tarea.tiempo_invertido_minutos }} min</span>
+                        {% elif tarea.fecha_inicio %}
+                        <span class="badge bg-warning">{{ tarea.tiempo_transcurrido_minutos }} min (en progreso)</span>
+                        {% else %}
+                        <span class="text-muted">No iniciada</span>
+                        {% endif %}
+                    </div>
+                    {% if tarea.tiempo_estimado_minutos %}
+                    <div>
+                        <strong>Progreso:</strong><br>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar {% if tarea.porcentaje_tiempo > 100 %}bg-danger{% else %}bg-success{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ tarea.porcentaje_tiempo }}%"
+                                 aria-valuenow="{{ tarea.porcentaje_tiempo }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                                {{ tarea.porcentaje_tiempo }}%
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Agregar Comentario -->
+            {% if user.rol == 'ADMIN' or user.rol == 'SUPERVISOR' or user.rol == 'MECANICO' %}
+            <div class="card card-pepsi">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-chat-left-text"></i> Agregar Comentario</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'tarea_agregar_comentario' tarea.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="comentario" class="form-control" rows="3" placeholder="Escribe un comentario..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-pepsi-primary w-100">
+                            <i class="bi bi-send"></i> Enviar Comentario
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline-item {
+    border-left: 2px solid #dee2e6;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.timeline-item:last-child {
+    border-left-color: transparent;
+}
+</style>
+{% endblock %}

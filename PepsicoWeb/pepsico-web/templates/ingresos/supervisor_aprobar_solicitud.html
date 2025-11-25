@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Aprobar Solicitud - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">
+                <i class="bi bi-check-circle text-success"></i> Confirmar Aprobación
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 offset-lg-3">
+            <div class="card card-pepsi border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Resumen de la Solicitud</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1"><strong>Vehículo:</strong></p>
+                        <h5 class="mb-0">{{ solicitud.vehiculo.patente }}</h5>
+                        <p class="small text-muted mb-0">{{ solicitud.vehiculo.marca }} {{ solicitud.vehiculo.modelo }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1"><strong>Chofer:</strong></p>
+                        <p class="mb-0">{{ solicitud.chofer.nombre }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1"><strong>Motivo del ingreso:</strong></p>
+                        <p class="mb-0">{{ solicitud.motivo }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1"><strong>Fecha programada:</strong></p>
+                        <p class="mb-0">{{ solicitud.fecha_estimada_ingreso|date:"d/m/Y H:i" }}</p>
+                    </div>
+
+                    <hr>
+
+                    <!-- Confirmación -->
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Al aprobar:</strong> Se creará un ingreso al taller y se notificará al chofer.
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Aprobar Solicitud
+                            </button>
+                            <a href="{% url 'supervisor_notificaciones' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-pepsi {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+    }
+</style>
+{% endblock %}

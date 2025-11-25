@@ -1,0 +1,86 @@
+LISTA DE ARCHIVOS Y CARPETAS A COPIAR
+
+CRÍTICO - NO OLVIDES ESTOS (CONTIENEN TUS DATOS)
+================================================
+db.sqlite3 ..................... Base de datos con TODOS los datos
+requirements.txt ............... Dependencias del proyecto
+manage.py ....................... Archivo principal de Django
+
+CARPETAS PRINCIPALES (código del proyecto)
+============================================
+config/ ......................... Configuración de Django
+ingresos/ ....................... App de ingresos al taller
+vehiculos/ ...................... App de vehículos
+reportes/ ....................... App de reportes
+usuarios/ ....................... App de usuarios
+core/ ........................... App principal
+notificaciones/ ................. App de notificaciones
+templates/ ...................... Plantillas HTML
+static/ ......................... Archivos CSS, JS, imágenes
+staticfiles/ .................... Archivos estáticos compilados
+media/ .......................... Documentos y fotos subidas
+logs/ ........................... Logs de la aplicación
+tools/ .......................... Scripts de utilidad
+
+ARCHIVOS DE CONFIGURACIÓN
+==========================
+.env (si existe) ................ Variables de entorno
+credenciales.txt (si existe) .... Credenciales guardadas
+
+ARCHIVOS OPCIONALES (pero recomendados)
+========================================
+Comandos.txt .................... Notas de comandos
+test_results.txt ................ Resultados de pruebas
+INSTRUCCIONES_RESTAURACION.md ... Este archivo
+
+ARCHIVOS QUE NO NECESITAS COPIAR
+=================================
+__pycache__/ .................... Se regeneran automáticamente
+venv/ ........................... Crea uno nuevo en el otro dispositivo
+.git/ ........................... (Si usas Git)
+*.pyc ........................... Se regeneran automáticamente
+*.pyo ........................... Se regeneran automáticamente
+
+ESTRUCTURA ESPERADA DESPUÉS DE COPIAR
+======================================
+pepsico-web/
+├── config/
+├── ingresos/
+├── vehiculos/
+├── reportes/
+├── usuarios/
+├── core/
+├── notificaciones/
+├── templates/
+├── static/
+├── staticfiles/
+├── media/
+├── logs/
+├── tools/
+├── db.sqlite3 ..................... CRÍTICO
+├── manage.py
+├── requirements.txt ............... CRÍTICO
+└── [otros archivos]
+
+INSTRUCCIONES RÁPIDAS
+====================
+1. Copia TODA la carpeta pepsico-web
+2. En el nuevo dispositivo:
+   - Abre PowerShell en la carpeta
+   - python -m venv venv
+   - .\venv\Scripts\Activate.ps1
+   - pip install -r requirements.txt
+   - python manage.py migrate
+   - python manage.py runserver
+
+VERIFICACIÓN FINAL
+==================
+Antes de enviar, verifica que existe:
+[ ] db.sqlite3 (tamaño > 100 KB)
+[ ] requirements.txt (contiene Django, etc)
+[ ] manage.py
+[ ] carpeta config/
+[ ] carpeta ingresos/
+[ ] carpeta templates/
+[ ] carpeta static/
+[ ] archivo INSTRUCCIONES_RESTAURACION.md

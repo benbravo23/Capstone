@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Productividad - PepsiCo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">
+                <i class="bi bi-person-check text-primary"></i> Reporte de Productividad
+            </h1>
+            <p class="text-muted">Rendimiento por mecánico</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'reportes_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card card-pepsi mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Desde</label>
+                    <input type="date" name="fecha_desde" class="form-control" value="{{ fecha_desde }}">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" name="fecha_hasta" class="form-control" value="{{ fecha_hasta }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-pepsi-primary w-100">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Botón de exportación -->
+    <div class="mb-3">
+        <a href="{% url 'exportar_reporte_csv' %}?tipo=productividad&fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}" 
+           class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar a CSV
+        </a>
+    </div>
+    
+    <!-- Cards de mecánicos -->
+    <div class="row g-4">
+        {% for item in mecanicos_data %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card card-pepsi h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                             style="width: 60px; height: 60px;">
+                            <i class="bi bi-person fs-3"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="mb-0">{{ item.mecanico.nombre }}</h5>
+                            <small class="text-muted">{{ item.mecanico.get_rol_display }}</small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <h3 class="text-primary mb-0">{{ item.total_tareas }}</h3>
+                            <small class="text-muted">Total Tareas</small>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-success mb-0">{{ item.porcentaje_completadas }}%</h3>
+                            <small class="text-muted">Completadas</small>
+                        </div>
+                    </div>
+                    
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ item.porcentaje_completadas }}%"
+                             aria-valuenow="{{ item.porcentaje_completadas }}" 
+                             aria-valuemin="0" aria-valuemax="100">
+                            {{ item.completadas }} completadas
+                        </div>
+                    </div>
+                    
+                    <div class="row g-2 mt-3">
+                        <div class="col-4">
+                            <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+                                <strong class="text-success d-block">{{ item.completadas }}</strong>
+                                <small class="text-muted">Completadas</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center p-2 bg-warning bg-opacity-10 rounded">
+                                <strong class="text-warning d-block">{{ item.en_proceso }}</strong>
+                                <small class="text-muted">En Proceso</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center p-2 bg-danger bg-opacity-10 rounded">
+                                <strong class="text-danger d-block">{{ item.pendientes }}</strong>
+                                <small class="text-muted">Pendientes</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle fs-1 d-block mb-2"></i>
+                No hay mecánicos activos en el sistema
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
